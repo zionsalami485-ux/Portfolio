@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do App</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zion's To-Do App</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="app-container">
-    <h1>My To-Do List</h1>
+    <div class="container">
+        <header>
+            <h1>My To-Do List</h1>
+            <button id="themeToggle">🌙</button>
+        </header>
 
-    <div class="input-area">
-      <input type="text" id="taskInput" placeholder="Enter a new task...">
-      <button id="addBtn">Add</button>
+        <p id="taskCount">0 tasks</p>
+
+        <div class="input-area">
+            <input type="text" id="taskInput" placeholder="Enter your task...">
+
+            <select id="category">
+                <option value="General">General</option>
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+                <option value="School">School</option>
+                <option value="Project">Project</option>
+            </select>
+
+            <button id="addBtn">Add</button>
+        </div>
+
+        <ul id="taskList"></ul>
+
+        <button id="clearAll" class="danger-btn">Clear All</button>
     </div>
 
-    <ul id="taskList"></ul>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

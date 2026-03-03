@@ -1,68 +1,128 @@
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
+const categorySelect = document.getElementById("category");
+const clearAllBtn = document.getElementById("clearAll");
+const taskCount = document.getElementById("taskCount");
+const themeToggle = document.getElementById("themeToggle");
 
-// Load saved tasks on page load
-document.addEventlisterner("DOMContentLoaded", loadTasks);
-addBtn.addEventListener("click", addTask);
-function addtask () {
-  const tasks = taskInput.value.trim();
-  if (task === "") return;
+// ---------- LOAD EVERYTHING ----------
+document.addEventListener("DOMContentLoaded", () => {
+    loadTasks();
+    updateCount();
 
-  addTaskToUI(task);
-  saveTasks(task);
-
-  taskInput.value = "";
-}
-
-function addTaskToUI(task, completed = false) {
-  const li = document.createElement("li");
-  li.textContext = task;
-
-  if (completed) li.classList.add("completed");
-
-  // toggle completion on click
-  li.classList.toggle("completed");
-  updateLocalStorage();
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark");
+        themeToggle.textContent = "☀️";
+    }
 });
 
-// delete button
-const delBtn = document.createElement("button");
-delBtn.textContent = "X";
-delBtn.classList.add("delete-btn");
+// ---------- ADD TASK ----------
+addBtn.addEventListener("click", () => {
+    const task = taskInput.value.trim();
+    const category = categorySelect.value;
 
-delBtn.addEventListener("click", (e) =>) {
-    e.stopPropagation();
-    li.remove();
-    updateLocalStorage();
+    if (!task) return;
+
+    addTaskToUI(task, category);
+    saveTask(task, category);
+
+    taskInput.value = "";
+    updateCount();
 });
 
-li.appendChild(delBtn);
-taskList.appendChild(li);
+// ---------- CREATE UI TASK ----------
+function addTaskToUI(text, category, completed = false) {
+    const li = document.createElement("li");
+    if (completed) li.classList.add("completed");
+
+    const spanCategory = document.createElement("span");
+    spanCategory.className = `category-tag ${category}`;
+    spanCategory.textContent = category;
+
+    const textNode = document.createElement("span");
+    textNode.textContent = text;
+
+    li.appendChild(spanCategory);
+    li.appendChild(textNode);
+
+    // toggle completed
+    li.addEventListener("click", () => {
+        li.classList.toggle("completed");
+        updateLocalStorage();
+        updateCount();
+    });
+
+    // delete button
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "X";
+    delBtn.classList.add("delete-btn");
+
+    delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        li.remove();
+        updateLocalStorage();
+        updateCount();
+    });
+
+    li.appendChild(delBtn);
+    taskList.appendChild(li);
 }
 
-// Save to LocalStorage
-function saveTask(task) {
-  const tasks = getTasks();
-  tasks.push({ text: task, completed: flase});
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-  
-// Load saved tasks
-function loadtasks() {
-    const tasks = getTasks();
-    tasks.forEach(t => addTaskToUI(t.text, t,completed));
-}
-
-// Get tasks from localStorage
+// ---------- LOCAL STORAGE ----------
 function getTasks() {
+    return JSON.parse(localStorage.getItem("tasks")) || [];
+}
+
+function saveTask(text, category) {
+    const tasks = getTasks();
+    tasks.push({ text, category, completed: false });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function loadTasks() {
+    const tasks = getTasks();
+    tasks.forEach(t => {
+        addTaskToUI(t.text, t.category, t.completed);
+    });
+}
+
+function updateLocalStorage() {
     const tasks = [];
+
     document.querySelectorAll("li").forEach(li => {
         tasks.push({
-            text: li.firstChild.textContent,
+            text: li.children[1].textContent,
+            category: li.children[0].textContent,
             completed: li.classList.contains("completed")
         });
     });
+
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
-  
+
+// ---------- CLEAR ALL ----------
+clearAllBtn.addEventListener("click", () => {
+    taskList.innerHTML = "";
+    localStorage.removeItem("tasks");
+    updateCount();
+});
+
+// ---------- TASK COUNTER ----------
+function updateCount() {
+    const total = document.querySelectorAll("li").length;
+    taskCount.textContent = `${total} tasks`;
+}
+
+// ---------- THEME TOGGLE ----------
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    if (document.body.classList.contains("dark")) {
+        themeToggle.textContent = "☀️";
+        localStorage.setItem("theme", "dark");
+    } else {
+        themeToggle.textContent = "🌙";
+        localStorage.setItem("theme", "light");
+    }
+});
