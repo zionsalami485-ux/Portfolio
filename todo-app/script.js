@@ -2,51 +2,67 @@ const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
 
-// Load saved tasks
-window.onload = () => {
-  const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  savedTasks.forEach(task => addTask(task.text, task.completed));
-};
-
-addBtn.addEventListener("click", () => {
-  const task = taskInput.value.trim();
+// Load saved tasks on page load
+document.addEventlisterner("DOMContentLoaded", loadTasks);
+addBtn.addEventListener("click", addTask);
+function addtask () {
+  const tasks = taskInput.value.trim();
   if (task === "") return;
-  addTask(task, false);
-  saveTasks();
+
+  addTaskToUI(task);
+  saveTasks(task);
+
   taskInput.value = "";
+}
+
+function addTaskToUI(task, completed = false) {
+  const li = document.createElement("li");
+  li.textContext = task;
+
+  if (completed) li.classList.add("completed");
+
+  // toggle completion on click
+  li.classList.toggle("completed");
+  updateLocalStorage();
 });
 
-function addTask(taskText, completed) {
-  const li = document.createElement("li");
+// delete button
+const delBtn = document.createElement("button");
+delBtn.textContent = "X";
+delBtn.classList.add("delete-btn");
 
-  li.innerHTML = `
-    <span class="task ${completed ? "completed" : ""}">${taskText}</span>
-    <button class="deleteBtn">X</button>
-  `;
-
-  // Toggle complete
-  li.querySelector(".task").addEventListener("click", () => {
-    li.querySelector(".task").classList.toggle("completed");
-    saveTasks();
-  });
-
-  // Delete task
-  li.querySelector(".deleteBtn").addEventListener("click", () => {
+delBtn.addEventListener("click", (e) =>) {
+    e.stopPropagation();
     li.remove();
-    saveTasks();
-  });
+    updateLocalStorage();
+});
 
-  taskList.appendChild(li);
+li.appendChild(delBtn);
+taskList.appendChild(li);
 }
 
-// Save to localStorage
-function saveTasks() {
-  const tasks = [];
-  document.querySelectorAll("#taskList li").forEach(li => {
-    tasks.push({
-      text: li.querySelector(".task").innerText,
-      completed: li.querySelector(".task").classList.contains("completed")
-    });
-  });
+// Save to LocalStorage
+function saveTask(task) {
+  const tasks = getTasks();
+  tasks.push({ text: task, completed: flase});
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
+  
+// Load saved tasks
+function loadtasks() {
+    const tasks = getTasks();
+    tasks.forEach(t => addTaskToUI(t.text, t,completed));
+}
+
+// Get tasks from localStorage
+function getTasks() {
+    const tasks = [];
+    document.querySelectorAll("li").forEach(li => {
+        tasks.push({
+            text: li.firstChild.textContent,
+            completed: li.classList.contains("completed")
+        });
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+  
